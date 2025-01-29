@@ -3,112 +3,62 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Embed</title>
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #1a1a1a;
-            margin: 0;
-            color: #fff;
-        }
+    <link rel="stylesheet" href="styles.css">  </head>
+<body>
 
-        .container {
-            text-align: center;
-            background-color: #2a2a2a;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 2em;
-            color: #00ffcc;
-        }
-
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #00ffcc;
-            border-radius: 10px;
-            background-color: #1a1a1a;
-            color: #fff;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #00ffcc;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #00cc99;
-        }
-
-        #qrcode {
-            margin-top: 20px;
-        }
-
-        a#download {
-            display: block;
-            margin-top: 10px;
-            color: #00ffcc;
-            text-decoration: none;
-        }
-
-        a#download:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body onload="embedWebsite()">
+<div class="container">
+    <h1>Embed a Website</h1>
+    <input type="text" id="websiteUrl" placeholder="Enter website URL (http:// or https:// required)">
+    <button onclick="embedWebsite()">Embed</button>
+    <button onclick="openInNewWindow()" id="newWindowButton" style="display:none;">Open in New Window</button> </div>
 
 <script>
+    let currentURL = ""; // Store the current URL
+
     function embedWebsite() {
-        let url = prompt("Enter the website URL (http:// or https:// required):");
+        let url = document.getElementById("websiteUrl").value;
 
         if (url) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 alert("URL must start with http:// or https://");
-                embedWebsite();
                 return;
             }
+            currentURL = url; // Store the valid URL
+            document.getElementById("newWindowButton").style.display = "block"; // Show the button
 
-            var win;
-            var button = document.createElement('button');
-            button.textContent = "Open in new window";
-            document.body.appendChild(button);
+            // Iframe creation (same window)
+            let iframe = document.createElement('iframe');
+            iframe.style.border = 'none';
+            iframe.style.width = '80%'; // Adjust as needed
+            iframe.style.height = '500px'; // Adjust as needed
+            iframe.style.margin = '20px auto'; // Center the iframe
+            iframe.style.display = 'block'; // Make sure it displays
 
-            button.onclick = function() {
-                if (win) {
-                    win.focus();
-                } else {
-                    win = window.open();
-                    win.document.body.style.margin = '0';
-                    win.document.body.style.height = '100%';
-                    var iframe = win.document.createElement('iframe');
-                    iframe.style.border = 'none';
-                    iframe.style.width = '100%';
-                    iframe.style.height = '100%';
-                    iframe.style.margin = '0';
+            const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example proxy - use with caution!
+            iframe.src = proxyURL + url;
 
-                    // X-Frame-Options bypass (using a proxy - be VERY careful with this)
-                    const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example proxy - use with caution!
-                    iframe.src = proxyURL + url;
+            document.body.appendChild(iframe); // Add to current document body
 
-                    win.document.body.appendChild(iframe);
-                }
-            };
         } else {
             alert("No URL provided.");
+        }
+    }
+
+    function openInNewWindow() {
+        if (currentURL) {
+            var win = window.open();
+            win.document.body.style.margin = '0';
+            win.document.body.style.height = '100%';
+            var iframe = win.document.createElement('iframe');
+            iframe.style.border = 'none';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.margin = '0';
+
+            const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example proxy - use with caution!
+            iframe.src = proxyURL + currentURL;
+
+            win.document.body.appendChild(iframe);
         }
     }
 </script>
