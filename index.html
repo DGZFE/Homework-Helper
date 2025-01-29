@@ -13,24 +13,24 @@ body {
   margin: 0;
 }
 
-#script-prompts {
+#url-prompt {
   margin-bottom: 20px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-#script-prompts label {
+#url-prompt label {
   display: block;
   margin-bottom: 5px;
 }
 
-#script-prompts input[type="text"] {
-  width: 400px; /* Increased width */
+#url-prompt input[type="text"] {
+  width: 400px;
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 3px;
-  box-sizing: border-box; /* Include padding and border in width */
+  box-sizing: border-box;
 }
 
 #myIframe {
@@ -38,55 +38,63 @@ body {
   width: 800px;
   height: 600px;
 }
+
+/* Hide the script inputs */
+#script-inputs {
+  display: none; /* Or visibility: hidden; */
+}
 </style>
 </head>
 <body>
 
-<div id="script-prompts">
-  <label for="script1">Enter Script 1 URL:</label>
-  <input type="text" id="script1" name="script1" value="https://unpkg.com/x-frame-bypass">
-
-  <label for="script2">Enter Script 2 URL:</label>
-  <input type="text" id="script2" name="script2" value="https://unpkg.com/@ungap/custom-elements-builtin">
-
+<div id="url-prompt">
+  <label for="iframe-url">Enter Iframe URL:</label>
+  <input type="text" id="iframe-url" name="iframe-url" placeholder="https://www.example.com">  
   <button onclick="loadIframe()">Load Iframe</button>
 </div>
+
+<div id="script-inputs">  <input type="text" id="script1" value="https://unpkg.com/x-frame-bypass">
+  <input type="text" id="script2" value="https://unpkg.com/@ungap/custom-elements-builtin">
+</div>
+
 
 <iframe id="myIframe" src="about:blank"></iframe>
 
 <script>
 function loadIframe() {
+  const iframeUrl = document.getElementById('iframe-url').value;
   const script1Url = document.getElementById('script1').value;
   const script2Url = document.getElementById('script2').value;
   const iframe = document.getElementById('myIframe');
 
-  // Create script elements dynamically
+    if (!iframeUrl.startsWith("http://") && !iframeUrl.startsWith("https://")) {
+    alert("Please enter a URL starting with http:// or https://");
+    return; // Stop execution
+  }
+
   const script1 = document.createElement('script');
-  script1.type = 'module'; // Important for x-frame-bypass
+  script1.type = 'module';
   script1.src = script1Url;
 
   const script2 = document.createElement('script');
   script2.src = script2Url;
 
-  // Append scripts to the iframe's document head
   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
   iframeDoc.head.appendChild(script1);
   iframeDoc.head.appendChild(script2);
 
-    // After scripts are loaded (or timed out), set the iframe src (replace with your URL)
   Promise.all([
     customElements.whenDefined('x-frame-bypass'),
     new Promise(resolve => {
       if (typeof customElements.define === 'function') {
         resolve();
       } else {
-        setTimeout(resolve, 100); // Fallback - not ideal
+        setTimeout(resolve, 100);
       }
     })
   ]).then(() => {
-        iframe.src = "YOUR_URL_HERE"; // Replace with your desired URL!
-    console.log("Iframe scripts loaded. Attempting to set URL.");
-
+    iframe.src = iframeUrl; // Set the URL from the prompt
+    console.log("Iframe scripts loaded. Attempting to set URL:", iframeUrl);
   }).catch(error => {
     console.error("Error loading scripts or setting iframe src:", error);
   });
