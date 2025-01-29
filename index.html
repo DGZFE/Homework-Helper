@@ -3,17 +3,77 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Embed</title>
-    <link rel="stylesheet" href="styles.css">  </head>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            margin: 0;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #2a2a2a;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+            color: #00ffcc;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #00ffcc;
+            border-radius: 10px;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #00ffcc;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #00cc99;
+        }
+
+        iframe {
+            border: none;
+            width: 80%;
+            height: 500px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 10px;
+        }
+    </style>
+</head>
 <body>
 
 <div class="container">
     <h1>Embed a Website</h1>
     <input type="text" id="websiteUrl" placeholder="Enter website URL (http:// or https:// required)">
     <button onclick="embedWebsite()">Embed</button>
-    <button onclick="openInNewWindow()" id="newWindowButton" style="display:none;">Open in New Window</button> </div>
+    <button onclick="openInNewWindow()" id="newWindowButton" style="display:none;">Open in New Window</button>
+</div>
 
 <script>
-    let currentURL = ""; // Store the current URL
+    let currentURL = "";
 
     function embedWebsite() {
         let url = document.getElementById("websiteUrl").value;
@@ -23,21 +83,21 @@
                 alert("URL must start with http:// or https://");
                 return;
             }
-            currentURL = url; // Store the valid URL
-            document.getElementById("newWindowButton").style.display = "block"; // Show the button
+            currentURL = url;
+            document.getElementById("newWindowButton").style.display = "block";
 
-            // Iframe creation (same window)
             let iframe = document.createElement('iframe');
             iframe.style.border = 'none';
-            iframe.style.width = '80%'; // Adjust as needed
-            iframe.style.height = '500px'; // Adjust as needed
-            iframe.style.margin = '20px auto'; // Center the iframe
-            iframe.style.display = 'block'; // Make sure it displays
+            iframe.style.width = '80%';
+            iframe.style.height = '500px';
+            iframe.style.margin = '20px auto';
+            iframe.style.display = 'block';
+            iframe.id = "embeddedIframe";
 
-            const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example proxy - use with caution!
+            const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example - VERY risky for production
             iframe.src = proxyURL + url;
 
-            document.body.appendChild(iframe); // Add to current document body
+            document.body.appendChild(iframe);
 
         } else {
             alert("No URL provided.");
@@ -55,7 +115,7 @@
             iframe.style.height = '100%';
             iframe.style.margin = '0';
 
-            const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example proxy - use with caution!
+            const proxyURL = 'https://cors-anywhere.herokuapp.com/'; // Example - VERY risky for production
             iframe.src = proxyURL + currentURL;
 
             win.document.body.appendChild(iframe);
