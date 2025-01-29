@@ -1,104 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Iframe Example</title>
-<style>
-body {
-  font-family: sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  margin: 0;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe Prompter</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* Light gray background */
+        }
 
-#url-prompt {
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
+        #container {
+            width: 80%;
+            max-width: 900px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px; /* Rounded corners */
+        }
 
-#url-prompt label {
-  display: block;
-  margin-bottom: 5px;
-}
+        #iframe-container {
+            width: 100%;
+            height: 500px; /* Adjust as needed */
+            border: none; /* Remove default iframe border */
+            overflow: hidden; /* Hide scrollbars if content overflows */
+            border: 1px solid #ccc; /* Add a border to the iframe */
+            border-radius: 4px;
+        }
 
-#url-prompt input[type="text"] {
-  width: 400px;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  box-sizing: border-box;
-}
+        #prompt-area {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding in width calculation */
+            font-size: 16px; /* Make the text a bit larger */
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 100px; /* Set a minimum height */
+        }
 
-#myIframe {
-  border: 1px solid #ccc;
-  width: 800px;
-  height: 600px;
-}
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        }
 
-/* Hide the script inputs */
-#script-inputs {
-  display: none; /* Or visibility: hidden; */
-}
-</style>
+        button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+    </style>
 </head>
 <body>
 
-<div id="url-prompt">
-  <label for="iframe-url">Enter Iframe URL:</label>
-  <input type="text" id="iframe-url" name="iframe-url" placeholder="https://www.example.com">  
-  <button onclick="loadIframe()">Load Iframe</button>
+<div id="container">
+    <h1>Iframe Prompter</h1>
+    <div id="iframe-container">
+        <iframe id="my-iframe" src=""  sandbox="allow-scripts allow-same-origin allow-forms"></iframe> </div>
+    <textarea id="prompt-area" placeholder="Enter URL or HTML here..."></textarea>
+    <button onclick="loadContent()">Load</button>
 </div>
 
-<div id="script-inputs">  <input type="text" id="script1" value="https://unpkg.com/x-frame-bypass">
-  <input type="text" id="script2" value="https://unpkg.com/@ungap/custom-elements-builtin">
-</div>
-
-
-<iframe id="myIframe" src="about:blank"></iframe>
+<script type="module" src="https://unpkg.com/x-frame-bypass"></script>
+<script src="https://unpkg.com/@ungap/custom-elements-builtin"></script>
 
 <script>
-function loadIframe() {
-  const iframeUrl = document.getElementById('iframe-url').value;
-  const script1Url = document.getElementById('script1').value;
-  const script2Url = document.getElementById('script2').value;
-  const iframe = document.getElementById('myIframe');
+    function loadContent() {
+        const prompt = document.getElementById('prompt-area').value;
+        const iframe = document.getElementById('my-iframe');
 
-    if (!iframeUrl.startsWith("http://") && !iframeUrl.startsWith("https://")) {
-    alert("Please enter a URL starting with http:// or https://");
-    return; // Stop execution
-  }
+        if (isValidURL(prompt)) {
+            iframe.src = prompt;
+        } else if (isHTML(prompt)) {
+          iframe.srcdoc = prompt; // Set the HTML content directly for HTML
+        } else {
+            alert("Invalid input. Please enter a valid URL or HTML.");
+        }
+    }
 
-  const script1 = document.createElement('script');
-  script1.type = 'module';
-  script1.src = script1Url;
-
-  const script2 = document.createElement('script');
-  script2.src = script2Url;
-
-  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-  iframeDoc.head.appendChild(script1);
-  iframeDoc.head.appendChild(script2);
-
-  Promise.all([
-    customElements.whenDefined('x-frame-bypass'),
-    new Promise(resolve => {
-      if (typeof customElements.define === 'function') {
-        resolve();
-      } else {
-        setTimeout(resolve, 100);
+    function isValidURL(string) {
+      let url;
+      try {
+        url = new URL(string);
+      } catch (_) {
+        return false;
       }
-    })
-  ]).then(() => {
-    iframe.src = iframeUrl; // Set the URL from the prompt
-    console.log("Iframe scripts loaded. Attempting to set URL:", iframeUrl);
-  }).catch(error => {
-    console.error("Error loading scripts or setting iframe src:", error);
-  });
-}
+      return url.protocol === "http:" || url.protocol === "https:";
+    }
+
+        function isHTML(string) {
+            // A very basic HTML check.  Improve as needed.
+            return /<(\w+).*?>|<.*?\/(\w+)>/.test(string);
+        }
+
+
 </script>
 
 </body>
